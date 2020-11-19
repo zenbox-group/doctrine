@@ -1,17 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ZenBox\Doctrine;
 
+use Closure;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Container\ContainerInterface;
 
-class DefinitionFactory
+final class DefinitionFactory
 {
-    /**
-     * @param $className
-     * @return \Closure
-     */
-    public static function create($className) {
+    public static function create(string $className): Closure
+    {
         return function (ContainerInterface $container) use ($className) {
             return $container->get(EntityManagerInterface::class)->getRepository($className);
         };

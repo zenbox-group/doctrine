@@ -1,12 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ZenBox\Doctrine\Extractor;
 
 interface ExtractorInterface
 {
-    /**
-     * @param object $object
-     * @return array
-     */
-    public function extract($object);
+    public function extract(object $object): array;
 }

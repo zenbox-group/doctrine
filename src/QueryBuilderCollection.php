@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ZenBox\Doctrine;
 
 use Doctrine\Common\Collections\AbstractLazyCollection;
@@ -7,24 +9,20 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\Common\Collections\Selectable;
+use Doctrine\DBAL\DBALException;
 use Doctrine\ORM\Query;
+use Doctrine\ORM\Query\Parameter;
 use Doctrine\ORM\Query\Parser;
 use Doctrine\ORM\Query\ResultSetMapping;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\Pagination\CountOutputWalker;
 use Doctrine\ORM\Tools\Pagination\CountWalker;
+use Exception;
 
-class QueryBuilderCollection extends AbstractLazyCollection implements Selectable
+final class QueryBuilderCollection extends AbstractLazyCollection implements Selectable
 {
-    /**
-     * @var QueryBuilder
-     */
-    private $queryBuilder;
-
-    /**
-     * @var int
-     */
-    private $count;
+    private QueryBuilder $queryBuilder;
+    private ?int $count = null;
 
     /**
      * QueryBuilderCollection constructor.
@@ -79,7 +77,7 @@ class QueryBuilderCollection extends AbstractLazyCollection implements Selectabl
         if ($this->count === null) {
             try {
                 $this->count = array_sum(array_map('current', $this->getCountQuery()->getScalarResult()));
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->count = 0;
             }
         }
@@ -143,7 +141,7 @@ class QueryBuilderCollection extends AbstractLazyCollection implements Selectabl
      * Returns Query prepared to count.
      *
      * @return Query
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
     private function getCountQuery()
     {
@@ -171,7 +169,7 @@ class QueryBuilderCollection extends AbstractLazyCollection implements Selectabl
 
         $parser = new Parser($countQuery);
         $parameterMappings = $parser->parse()->getParameterMappings();
-        /* @var $parameters \Doctrine\Common\Collections\Collection|\Doctrine\ORM\Query\Parameter[] */
+        /* @var $parameters Collection|Parameter[] */
         $parameters = $countQuery->getParameters();
 
         foreach ($parameters as $key => $parameter) {

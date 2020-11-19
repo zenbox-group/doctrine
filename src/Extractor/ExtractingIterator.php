@@ -1,19 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ZenBox\Doctrine\Extractor;
 
-class ExtractingIterator extends \IteratorIterator
-{
-    /**
-     * @var ExtractorInterface
-     */
-    private $extractor;
+use IteratorIterator;
+use Traversable;
 
-    /**
-     * @param \Traversable $data
-     * @param ExtractorInterface $extractor
-     */
-    public function __construct(\Traversable $data, ExtractorInterface $extractor)
+final class ExtractingIterator extends IteratorIterator
+{
+    private ExtractorInterface $extractor;
+
+    public function __construct(Traversable $data, ExtractorInterface $extractor)
     {
         $this->extractor = $extractor;
         parent::__construct($data);

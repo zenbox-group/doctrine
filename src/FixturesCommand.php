@@ -12,16 +12,10 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 
-class FixturesCommand extends Command
+final class FixturesCommand extends Command
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
-    /**
-     * @var string
-     */
-    private $fixturesPath;
+    private EntityManagerInterface $entityManager;
+    private string $fixturesPath;
 
     public function __construct(EntityManagerInterface $entityManager, string $fixturesPath)
     {

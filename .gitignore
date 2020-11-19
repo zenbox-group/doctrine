@@ -1,7 +1,14 @@
 .idea
+.env
+.phpunit.result.cache
+docker-compose.yml
 composer.phar
 composer.lock
 clover.xml
 coveralls-upload.json
 phpunit.xml
 vendor
+config
+bin
+data
+env

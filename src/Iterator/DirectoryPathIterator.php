@@ -5,7 +5,7 @@ namespace ZenBox\Doctrine\Iterator;
 use FilesystemIterator;
 use FilterIterator;
 
-class DirectoryPathIterator extends FilterIterator
+final class DirectoryPathIterator extends FilterIterator
 {
     public function __construct(string $path)
     {
