@@ -37,7 +37,9 @@ $collection->slice(0, 10); // request limited 10 records from the database
 Can be used for pagination. 20 records per page by default
 
 ```php
-use Doctrine\Common\Collections\ArrayCollection;$dataProvider = new DataProvider(new ArrayCollection([...]));
+use Doctrine\Common\Collections\ArrayCollection;
+
+$dataProvider = new DataProvider(new ArrayCollection([...]));
 
 // iterable
 foreach ($dataProvider as $object) {
@@ -50,8 +52,10 @@ $array = $dataProvider->toArray(); // returns 20 records
 Extract data from objects
 
 ```php
+use ZenBox\Doctrine\Extractor\ExtractorInterface;
+
 // implement extractor
-use ZenBox\Doctrine\Extractor\ExtractorInterface;class UserExtractor implements ExtractorInterface
+class UserExtractor implements ExtractorInterface
 {
     public function extract(object $object) : array
     {
@@ -79,41 +83,36 @@ You need to create a file `./bin/doctrine` in your project for use console comma
 
 require __DIR__ . ' /../vendor/autoload.php';
 
-use Doctrine\Migrations\Configuration\Connection\ExistingConnection;
-use Doctrine\Migrations\Configuration\Migration\ConfigurationArray;
-use Doctrine\Migrations\DependencyFactory;
-use Doctrine\DBAL\Tools\Console\Helper\ConnectionHelper;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Tools\Console\ConsoleRunner;
-use Doctrine\ORM\Tools\Console\Helper\EntityManagerHelper;
-use Psr\Container\ContainerInterface;use Symfony\Component\Console\Helper\HelperSet;
-use Doctrine\Migrations\Tools\Console\ConsoleRunner as MigrationsConsoleRunner;
-use Symfony\Component\Console\Helper\QuestionHelper;
-use ZenBox\Doctrine\FixturesCommand;
+use Psr\Container\ContainerInterface;
+use ZenBox\Doctrine\Console\DoctrineConsoleRunner;
 
 /** @var ContainerInterface $container */
 $container = require __DIR__ . '/../config/container.php';
 $entityManager = $container->get(EntityManagerInterface::class);
+$config = [
+    'migrations' => [
+        'table_storage' => [
+            'table_name' => 'doctrine_migration_versions',
+            'version_column_name' => 'version',
+            'version_column_length' => 1024,
+            'executed_at_column_name' => 'executed_at',
+            'execution_time_column_name' => 'execution_time',
+        ],
 
-$console = ConsoleRunner::createApplication(new HelperSet(
-    [
-        'db' => new ConnectionHelper($entityManager->getConnection()),
-        'em' => new EntityManagerHelper($entityManager),
-        'question' => new QuestionHelper(),
-    ]
-));
+        'migrations_paths' => [
+            'MyProject\Migrations' => __DIR__ . '/../data/migrations/MyProject/Migrations',
+            'MyProject\Component\Migrations' => __DIR__ . '/../data/migrations/Component/MyProject/Migrations',
+        ],
 
-$dependencyFactory = DependencyFactory::fromConnection(
-        new ConfigurationArray([
-            'migrations_paths' => [
-                'MyProject\Migrations' => realpath(__DIR__ . '/../data/migrations/MyProject/Migrations'),
-            ]
-        ]), new ExistingConnection($entityManager->getConnection()));
-MigrationsConsoleRunner::addCommands($console, $dependencyFactory);
+        'all_or_nothing' => true,
+        'check_database_platform' => true,
+    ],
+    'fixtures_path' => __DIR__ . '/../data/fixtures',
+];
 
-$console->add(new FixturesCommand($entityManager, realpath(__DIR__ . '/../src')));
+DoctrineConsoleRunner::run($entityManager, $config);
 
-$console->run();
 ```
 
 ### Container configuration
