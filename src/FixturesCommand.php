@@ -53,7 +53,7 @@ EOT
             ));
             if (!$canContinue) {
                 $this->outputError($output);
-                return 1;
+                return self::FAILURE;
             }
         }
 
@@ -66,6 +66,8 @@ EOT
             $output->writeln(sprintf('  <comment>></comment> <info>%s</info>', $message));
         });
         $executor->execute($loader->getFixtures(), $input->getOption('append'));
+
+        return self::SUCCESS;
     }
 
     protected function outputHeader(OutputInterface $output)
