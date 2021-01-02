@@ -6,7 +6,7 @@ namespace ZenBox\Doctrine\Console;
 
 use Doctrine\DBAL\Tools\Console\Command as DBALConsole;
 use Doctrine\DBAL\Tools\Console\Helper\ConnectionHelper;
-use Doctrine\Migrations\Configuration\Connection\ExistingConnection;
+use Doctrine\Migrations\Configuration\EntityManager\ExistingEntityManager;
 use Doctrine\Migrations\Configuration\Migration\ConfigurationArray;
 use Doctrine\Migrations\DependencyFactory;
 use Doctrine\Migrations\Tools\Console\Command as MigrationsConsole;
@@ -55,8 +55,8 @@ final class DoctrineConsoleRunner
         if (empty($config['migrations'])) throw InvalidConfigurationKey::new('migrations');
         if (empty($config['fixtures_path'])) throw InvalidConfigurationKey::new('fixtures_path');
 
-        $dependencyFactory = DependencyFactory::fromConnection(
-            new ConfigurationArray($config['migrations']), new ExistingConnection($entityManager->getConnection()));
+        $dependencyFactory = DependencyFactory::fromEntityManager(
+            new ConfigurationArray($config['migrations']), new ExistingEntityManager($entityManager));
 
         $cli->addCommands([
             // DBAL Commands
