@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace ZenBox\Doctrine\Console;
 
 use Doctrine\DBAL\Tools\Console\Command as DBALConsole;
-use Doctrine\DBAL\Tools\Console\Helper\ConnectionHelper;
 use Doctrine\Migrations\Configuration\EntityManager\ExistingEntityManager;
 use Doctrine\Migrations\Configuration\Migration\ConfigurationArray;
 use Doctrine\Migrations\DependencyFactory;
 use Doctrine\Migrations\Tools\Console\Command as MigrationsConsole;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\Console\Command as ORMConsole;
+use Doctrine\ORM\Tools\Console\EntityManagerProvider\ConnectionFromManagerProvider;
+use Doctrine\ORM\Tools\Console\EntityManagerProvider\SingleManagerProvider;
 use Doctrine\ORM\Tools\Console\Helper\EntityManagerHelper;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Helper\HelperSet;
@@ -34,7 +35,6 @@ final class DoctrineConsoleRunner
         $cli->setCatchExceptions(true);
         $cli->setHelperSet(new HelperSet(
             [
-                'db' => new ConnectionHelper($entityManager->getConnection()),
                 'em' => new EntityManagerHelper($entityManager),
                 'question' => new QuestionHelper(),
             ]
@@ -60,8 +60,8 @@ final class DoctrineConsoleRunner
 
         $cli->addCommands([
             // DBAL Commands
-            new DBALConsole\ReservedWordsCommand(),
-            new DBALConsole\RunSqlCommand(),
+            new DBALConsole\ReservedWordsCommand(new ConnectionFromManagerProvider(new SingleManagerProvider($entityManager))),
+            new DBALConsole\RunSqlCommand(new ConnectionFromManagerProvider(new SingleManagerProvider($entityManager))),
             // ORM Commands
             new ORMConsole\ClearCache\CollectionRegionCommand(),
             new ORMConsole\ClearCache\EntityRegionCommand(),
