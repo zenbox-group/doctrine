@@ -12,12 +12,12 @@ final class DirectoryPathIterator extends FilterIterator
         parent::__construct(new FilesystemIterator($path, FilesystemIterator::SKIP_DOTS | FilesystemIterator::UNIX_PATHS));
     }
 
-    public function current()
+    public function current(): mixed
     {
         return $this->getInnerIterator()->current()->getRealPath();
     }
 
-    public function accept()
+    public function accept(): bool
     {
         return $this->getInnerIterator()->current()->isDir();
     }
