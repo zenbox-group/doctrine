@@ -23,8 +23,6 @@ final class DataProvider implements IteratorAggregate
         $this->collection = $collection;
         $this->extractor = $extractor;
 
-        filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT);
-
         $this->page = filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT) ?: 1;
         $this->perPage = filter_input(INPUT_GET, 'per-page', FILTER_VALIDATE_INT) ?: 20;
     }

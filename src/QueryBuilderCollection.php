@@ -9,7 +9,10 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\Common\Collections\Selectable;
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\DB2Platform;
+use Doctrine\DBAL\Platforms\OraclePlatform;
+use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\Query\Parameter;
 use Doctrine\ORM\Query\Parser;
@@ -141,7 +144,6 @@ final class QueryBuilderCollection extends AbstractLazyCollection implements Sel
      * Returns Query prepared to count.
      *
      * @return Query
-     * @throws DBALException
      */
     private function getCountQuery()
     {
@@ -157,7 +159,7 @@ final class QueryBuilderCollection extends AbstractLazyCollection implements Sel
             $platform = $countQuery->getEntityManager()->getConnection()->getDatabasePlatform(); // law of demeter win
 
             $rsm = new ResultSetMapping();
-            $rsm->addScalarResult($platform->getSQLResultCasing('dctrn_count'), 'count');
+            $rsm->addScalarResult($this->getSQLResultCasing($platform,'dctrn_count'), 'count');
 
             $countQuery->setHint(Query::HINT_CUSTOM_OUTPUT_WALKER, CountOutputWalker::class);
             $countQuery->setResultSetMapping($rsm);
@@ -183,5 +185,22 @@ final class QueryBuilderCollection extends AbstractLazyCollection implements Sel
         $countQuery->setParameters($parameters);
 
         return $countQuery;
+    }
+
+    private function getSQLResultCasing(AbstractPlatform $platform, string $column): string
+    {
+        if ($platform instanceof DB2Platform || $platform instanceof OraclePlatform) {
+            return strtoupper($column);
+        }
+
+        if ($platform instanceof PostgreSQLPlatform) {
+            return strtolower($column);
+        }
+
+        if (method_exists(AbstractPlatform::class, 'getSQLResultCasing')) {
+            return $platform->getSQLResultCasing($column);
+        }
+
+        return $column;
     }
 }
